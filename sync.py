@@ -10,7 +10,7 @@ load_dotenv()
 
 API_KEY = os.environ.get("CLOUDBEDS_API_KEY")
 PROPERTY_ID = os.environ.get("CLOUDBEDS_PROPERTY_ID")
-ROOM_TYPE_FILTER = "537928"
+ROOM_TYPE_FILTER = "ROOM_TYPE_ID"
 
 with open("lock_config.json") as f:
     lock_config = json.load(f)
