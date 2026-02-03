@@ -1,0 +1,2 @@
+#!/bin/bash
+sqlite3 reservations.db "SELECT guest_name, res_status FROM roomstay;"
