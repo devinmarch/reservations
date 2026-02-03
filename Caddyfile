@@ -1,0 +1,19 @@
+tv.devinmarch.com {
+    reverse_proxy localhost:8096
+}
+
+devinmarch.com {
+    root * /var/www/devinmarch
+    file_server
+}
+
+www.devinmarch.com {
+    redir https://devinmarch.com{uri} permanent
+}
+
+res.devinmarch.com {
+	basicauth {
+        devin $2a$14$kZ.lxsjP5YCaqJcvKT8vSe3Vrvjk9Gt5apxxob9PDBk/Efqx8i9iK
+    }
+    reverse_proxy localhost:5000
+}
