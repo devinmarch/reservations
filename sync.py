@@ -1,4 +1,5 @@
 import os
+import json
 import requests
 from datetime import date, timedelta, datetime
 from zoneinfo import ZoneInfo
@@ -11,10 +12,12 @@ API_KEY = os.environ.get("CLOUDBEDS_API_KEY")
 PROPERTY_ID = os.environ.get("CLOUDBEDS_PROPERTY_ID")
 ROOM_TYPE_FILTER = "537928"
 
+with open("lock_config.json") as f:
+    lock_config = json.load(f)
+
 LOCKS = {
-    "537928-1": {"device": "e90f7dd1-18fd-4f43-9520-dc1aaad225c6", "key": os.environ.get("SEAM_KEY_1")},
-    "537928-2": {"device": "167e2aac-74d4-4049-a26d-6fb0234cc57c", "key": os.environ.get("SEAM_KEY_1")},
-    "537928-3": {"device": "41be7d28-9fe1-41bb-aed8-553e993bbd26", "key": os.environ.get("SEAM_KEY_1")},
+    room: {"device": data["device"], "key": os.environ.get(data["key"])}
+    for room, data in lock_config.items()
 }
 DAYS_BACK = (date.today() - timedelta(days=7)).isoformat()
 DAYS_AHEAD = (date.today() + timedelta(days=7)).isoformat()
