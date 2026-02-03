@@ -12,7 +12,7 @@ www.devinmarch.com {
 }
 
 res.devinmarch.com {
-    @notguest not path /guest/*
+    @notguest not path /r/*
     basicauth @notguest {
         devin $2a$14$kZ.lxsjP5YCaqJcvKT8vSe3Vrvjk9Gt5apxxob9PDBk/Efqx8i9iK
     }
