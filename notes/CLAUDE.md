@@ -7,7 +7,6 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
-| #295 | 5:54 PM | ✅ | Server Migration Plan Documentation Created | ~247 |
 | #286 | 5:42 PM | ✅ | Enhanced Coolify Removal Procedure with Complete Cleanup | ~341 |
 | #279 | 5:34 PM | ✅ | Server Migration Plan Documentation Created | ~383 |
 </claude-mem-context>
