@@ -1,12 +1,13 @@
 from flask import Flask, redirect
 import subprocess
+import sys
 from db import RoomStay
 
 app = Flask(__name__)
 
 @app.route("/sync")
 def sync():
-    subprocess.run(["python", "sync.py"])
+    subprocess.run([sys.executable, "sync.py"])
     return redirect("/")
 
 @app.route("/r/<reservation_id>")
