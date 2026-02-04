@@ -1,4 +1,10 @@
 {
-  "maxxim": "ss-954000-1",
-  "dev": "s-1175266"
+  "maxxim": {
+    "sourceID": "ss-954000-1",
+    "displayName": "Maxxim Vacations"
+  },
+  "dev": {
+    "sourceID": "s-1175266",
+    "displayName": "Dev Testing"
+  }
 }

@@ -18,14 +18,16 @@ with open("ota_config.json") as f:
 @ota_bp.route('/ota')
 def index():
     username = request.headers.get('X-Remote-User', '')
-    source_id = USER_SOURCE_MAP.get(username)
+    user_config = USER_SOURCE_MAP.get(username, {})
+    source_id = user_config.get("sourceID")
+    display_name = user_config.get("displayName", username)
 
     if not source_id:
         return f"No sourceID configured for user: {username}", 403
 
     # 2 year window
-    check_in_from = (date.today() - timedelta(days=365)).isoformat()
-    check_in_to = (date.today() + timedelta(days=365)).isoformat()
+    check_in_from = (date.today() - timedelta(days=30)).isoformat()
+    check_in_to = (date.today() + timedelta(days=730)).isoformat()
 
     # Step 1: Paginate through getReservations, filter by sourceID
     matching_ids = []
@@ -54,7 +56,20 @@ def index():
         page += 1
 
     if not matching_ids:
-        return f"<html><body><h1>OTA Reservations</h1><p>No reservations found for source: {source_id}</p></body></html>"
+        return f"""<!DOCTYPE html>
+<html><head><title>{display_name} Reservations</title>
+<style>
+table{{border-collapse:collapse;width:100%}}
+th,td{{border:1px solid #ddd;padding:8px;text-align:left}}
+th{{background:#333;color:white}}
+</style>
+</head><body>
+<h1>{display_name} Reservations</h1>
+<p>Found: 0 reservations</p>
+<table>
+<tr><th>Reservation ID</th><th>3rd Party ID</th><th>Check In</th><th>Check Out</th><th>Status</th><th>Total</th></tr>
+</table>
+</body></html>"""
 
     # Step 2: Get full details for matching reservations
     resp = requests.get(
@@ -75,15 +90,16 @@ def index():
             <td>{res.get('thirdPartyIdentifier', '')}</td>
             <td>{res['reservationCheckIn']}</td>
             <td>{res['reservationCheckOut']}</td>
+            <td>{res['status']}</td>
             <td>${res['total']:.2f}</td>
         </tr>"""
         for room in res.get("rooms", []):
             rows += f"""<tr class="room-row">
-            <td colspan="5">&nbsp;&nbsp;&nbsp;└─ {room['roomTypeName']}, {room['adults']} adults</td>
+            <td colspan="6">&nbsp;&nbsp;&nbsp;└─ {room['roomTypeName']}, {room['adults']} adults</td>
         </tr>"""
 
     return f"""<!DOCTYPE html>
-<html><head><title>OTA Reservations</title>
+<html><head><title>{display_name} Reservations</title>
 <style>
 table{{border-collapse:collapse;width:100%}}
 th,td{{border:1px solid #ddd;padding:8px;text-align:left}}
@@ -91,10 +107,10 @@ th{{background:#333;color:white}}
 .room-row{{background:#f5f5f5;font-size:0.9em}}
 </style>
 </head><body>
-<h1>OTA Reservations</h1>
-<p>Source: {source_id} | Found: {len(matching_ids)} reservations</p>
+<h1>{display_name} Reservations</h1>
+<p>Found: {len(matching_ids)} reservations</p>
 <table>
-<tr><th>Reservation ID</th><th>3rd Party ID</th><th>Check In</th><th>Check Out</th><th>Total</th></tr>
+<tr><th>Reservation ID</th><th>3rd Party ID</th><th>Check In</th><th>Check Out</th><th>Status</th><th>Total</th></tr>
 {rows}
 </table>
 </body></html>"""
