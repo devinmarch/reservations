@@ -65,7 +65,7 @@ th{{background:#333;color:white}}
 </style>
 </head><body>
 <h1>OTA Reservations</h1>
-<p>Source: {display_name} | Found: 0 reservations</p>
+<p>Partner: {display_name} | Reservations: 0</p>
 <table>
 <tr><th>Reservation ID</th><th>3rd Party ID</th><th>Check In</th><th>Check Out</th><th>Status</th><th>Total</th></tr>
 </table>
@@ -108,7 +108,7 @@ th{{background:#333;color:white}}
 </style>
 </head><body>
 <h1>OTA Reservations</h1>
-<p>Source: {display_name} | Found: {len(matching_ids)} reservations</p>
+<p>Partner: {display_name} | Reservations: {len(matching_ids)}</p>
 <table>
 <tr><th>Reservation ID</th><th>3rd Party ID</th><th>Check In</th><th>Check Out</th><th>Status</th><th>Total</th></tr>
 {rows}
