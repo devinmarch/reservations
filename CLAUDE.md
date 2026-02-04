@@ -7,3 +7,5 @@ Don't ever suggest a change without fully explaining it. What it does, you're re
 When I ask you to create a note, write a note etc., create a document and save it to the /notes direcotry please.
 
 I prefer SSH.
+
+Always make a point to explain if something is done due to covention/best practice but not required so I have a better contextual understanding.
