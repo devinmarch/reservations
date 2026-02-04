@@ -4,10 +4,19 @@
     <title>OTA Reservations</title>
     <style>
         body { font-family: sans-serif; margin: 20px; }
-        table { border-collapse: collapse; width: 100%; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        table { border-collapse: collapse; width: 100%; table-layout: fixed; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; overflow: hidden; text-overflow: ellipsis; }
         th { background: #333; color: white; }
-        .room-row { background: #f5f5f5; font-size: 0.9em; }
+        th:nth-child(1) { width: 15%; }  /* Reservation ID */
+        th:nth-child(2) { width: 18%; }  /* Guest Name */
+        th:nth-child(3) { width: 12%; }  /* 3rd Party ID */
+        th:nth-child(4) { width: 12%; }  /* Check In */
+        th:nth-child(5) { width: 12%; }  /* Check Out */
+        th:nth-child(6) { width: 12%; }  /* Status */
+        th:nth-child(7) { width: 10%; }  /* Total */
+        .details-row td { background: #f5f5f5; font-size: 0.9em; padding-left: 20px; }
+        .reservation-row { cursor: pointer; }
+        .reservation-row:hover { background: #f9f9f9; }
 
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .header h1 { margin: 0; }
@@ -18,6 +27,18 @@
         .btn-secondary { background: #6c757d; color: white; }
         .btn-danger { background: #dc3545; color: white; padding: 5px 10px; }
         .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* Controls row */
+        .controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+
+        /* Tabs */
+        .tabs { display: flex; gap: 5px; }
+        .tab { padding: 8px 16px; border: 1px solid #ddd; background: #fff; cursor: pointer; border-radius: 4px; }
+        .tab:hover { background: #f5f5f5; }
+        .tab.active { background: #333; color: white; border-color: #333; }
+
+        /* Search */
+        .search { padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; width: 250px; }
 
         /* Modal styles */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; }
@@ -51,31 +72,46 @@
         <button class="btn btn-primary" id="create-btn">Create Reservation</button>
     </div>
 
+    <div class="controls">
+        <div class="tabs">
+            <button class="tab active" data-status="">All</button>
+            <button class="tab" data-status="confirmed">Confirmed</button>
+            <button class="tab" data-status="cancelled">Cancelled</button>
+        </div>
+        <input type="text" class="search" id="search" placeholder="Search ID, guest, or 3rd party ref...">
+    </div>
+
     <table>
-        <tr>
-            <th>Reservation ID</th>
-            <th>Guest Name</th>
-            <th>3rd Party ID</th>
-            <th>Check In</th>
-            <th>Check Out</th>
-            <th>Status</th>
-            <th>Total</th>
-        </tr>
+        <thead>
+            <tr>
+                <th>Reservation ID</th>
+                <th>Guest Name</th>
+                <th>3rd Party ID</th>
+                <th>Check In</th>
+                <th>Check Out</th>
+                <th>Status</th>
+                <th>Total</th>
+            </tr>
+        </thead>
         {% for res in reservations %}
-        <tr>
-            <td>{{ res.reservationID }}</td>
-            <td>{{ res.guestName }}</td>
-            <td>{{ res.thirdPartyIdentifier or '' }}</td>
-            <td>{{ res.reservationCheckIn }}</td>
-            <td>{{ res.reservationCheckOut }}</td>
-            <td>{{ res.status }}</td>
-            <td>${{ "%.2f"|format(res.total) }}</td>
-        </tr>
-        {% for room in res.rooms %}
-        <tr class="room-row">
-            <td colspan="7">&nbsp;&nbsp;&nbsp;└─ {{ room.roomTypeName }}, {{ room.adults }} adults</td>
-        </tr>
-        {% endfor %}
+        <tbody data-status="{{ res.status }}" data-search="{{ res.reservationID }} {{ res.guestName }} {{ res.thirdPartyIdentifier or '' }}">
+            <tr class="reservation-row">
+                <td>{{ res.reservationID }}</td>
+                <td>{{ res.guestName }}</td>
+                <td>{{ res.thirdPartyIdentifier or '' }}</td>
+                <td>{{ res.reservationCheckIn }}</td>
+                <td>{{ res.reservationCheckOut }}</td>
+                <td>{{ res.status }}</td>
+                <td>${{ "%.2f"|format(res.total) }}</td>
+            </tr>
+            <tr class="details-row" hidden>
+                <td colspan="7">
+                    {% for room in res.rooms %}
+                    └─ {{ room.roomTypeName }}, {{ room.adults }} adults<br>
+                    {% endfor %}
+                </td>
+            </tr>
+        </tbody>
         {% endfor %}
     </table>
 
@@ -139,9 +175,55 @@
     </div>
 
     <script>
-        // Room types config from server
         const ROOM_TYPES = {{ room_types | tojson }};
     </script>
     <script src="{{ url_for('ota.static', filename='ota.js') }}"></script>
+    <script>
+        // Current filter state
+        let activeStatus = '';
+        let searchQuery = '';
+
+        function filterTable() {
+            document.querySelectorAll('tbody[data-status]').forEach(tbody => {
+                const status = tbody.dataset.status;
+                const searchText = tbody.dataset.search.toLowerCase();
+
+                const matchesStatus = !activeStatus || status === activeStatus;
+                const matchesSearch = !searchQuery || searchText.includes(searchQuery);
+
+                tbody.hidden = !(matchesStatus && matchesSearch);
+            });
+        }
+
+        // Tab filtering
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                activeStatus = tab.dataset.status;
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                filterTable();
+            });
+        });
+
+        // Search
+        document.getElementById('search').addEventListener('input', function() {
+            searchQuery = this.value.toLowerCase();
+            filterTable();
+        });
+
+        // Click to expand details (accordion style - only one open at a time)
+        document.querySelectorAll('.reservation-row').forEach(row => {
+            row.addEventListener('click', () => {
+                const details = row.nextElementSibling;
+                const wasHidden = details.hidden;
+
+                // Collapse all
+                document.querySelectorAll('.details-row').forEach(d => d.hidden = true);
+
+                // Toggle clicked one (open if it was closed)
+                details.hidden = !wasHidden;
+            });
+        });
+    </script>
 </body>
 </html>

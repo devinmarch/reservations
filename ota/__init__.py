@@ -12,9 +12,14 @@ with open("ota_config.json") as f:
     CONFIG = json.load(f)
 
 
+def get_username():
+    """Get username from header, with query param fallback for local dev."""
+    return request.headers.get('X-Remote-User', '') or request.args.get('_user', '')
+
+
 @ota_bp.route('/ota')
 def index():
-    username = request.headers.get('X-Remote-User', '')
+    username = get_username()
     user_config = CONFIG.get("users", {}).get(username, {})
     source_id = user_config.get("sourceID")
     display_name = user_config.get("displayName", username)
@@ -52,7 +57,7 @@ def index():
 
 @ota_bp.route('/ota/availability', methods=['POST'])
 def check_availability():
-    username = request.headers.get('X-Remote-User', '')
+    username = get_username()
     user_config = CONFIG.get("users", {}).get(username, {})
 
     if not user_config:
@@ -93,7 +98,7 @@ def check_availability():
 
 @ota_bp.route('/ota/create', methods=['POST'])
 def create_reservation():
-    username = request.headers.get('X-Remote-User', '')
+    username = get_username()
     user_config = CONFIG.get("users", {}).get(username, {})
 
     if not user_config:
