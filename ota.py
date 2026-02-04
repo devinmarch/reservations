@@ -29,8 +29,6 @@ def index():
 
     # Step 1: Paginate through getReservations, filter by sourceID
     matching_ids = []
-    all_source_ids = set()
-    total_checked = 0
     page = 1
 
     while True:
@@ -48,11 +46,7 @@ def index():
         data = resp.json()
 
         for res in data.get("data", []):
-            total_checked += 1
-            res_source_id = res.get("source", {}).get("sourceID")
-            if res_source_id:
-                all_source_ids.add(res_source_id)
-            if res_source_id == source_id:
+            if res.get("sourceID") == source_id:
                 matching_ids.append(res["reservationID"])
 
         if page >= data.get("totalPages", 1):
@@ -60,10 +54,7 @@ def index():
         page += 1
 
     if not matching_ids:
-        debug = f"<p>Checked {total_checked} reservations across {page} pages</p>"
-        debug += f"<p>Looking for: <code>{source_id}</code></p>"
-        debug += f"<p>Found sourceIDs: <code>{sorted(all_source_ids)}</code></p>"
-        return f"<html><body><h1>OTA Reservations</h1><p>No reservations found</p>{debug}</body></html>"
+        return f"<html><body><h1>OTA Reservations</h1><p>No reservations found for source: {source_id}</p></body></html>"
 
     # Step 2: Get full details for matching reservations
     resp = requests.get(
