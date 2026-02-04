@@ -12,9 +12,17 @@ www.devinmarch.com {
 }
 
 res.devinmarch.com {
-    @notguest not path /r/*
+    @notguest not path /r/* /ota*
     basicauth @notguest {
         devin $2a$14$kZ.lxsjP5YCaqJcvKT8vSe3Vrvjk9Gt5apxxob9PDBk/Efqx8i9iK
     }
+
+    @ota path /ota*
+    basicauth @ota {
+        maxxim REPLACE_WITH_HASH
+        dev REPLACE_WITH_HASH
+    }
+    header @ota X-Remote-User {http.auth.user.id}
+
     reverse_proxy localhost:5000
 }

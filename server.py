@@ -2,8 +2,10 @@ from flask import Flask, redirect
 import subprocess
 import sys
 from db import RoomStay
+from ota import ota_bp
 
 app = Flask(__name__)
+app.register_blueprint(ota_bp)
 
 @app.route("/sync")
 def sync():
