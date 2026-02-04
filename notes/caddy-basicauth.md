@@ -64,3 +64,25 @@ sudo cp config/Caddyfile /etc/caddy/Caddyfile && sudo systemctl reload caddy
 - Passwords must be hashed (never plain text)
 - The `/*` means "this path and everything under it"
 - Users are defined per-block, so the same user can appear in multiple blocks
+
+## Adding Additional Domains
+
+Point a new domain to the same backend:
+
+```
+app.cliffsedgeretreat.ca {
+    reverse_proxy localhost:5000
+}
+```
+
+Caddy automatically handles SSL via Let's Encrypt.
+
+To share config across multiple domains:
+
+```
+res.devinmarch.com, app.cliffsedgeretreat.ca {
+    reverse_proxy localhost:5000
+}
+```
+
+Keep domains separate if they need different auth rules.

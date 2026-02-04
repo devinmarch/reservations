@@ -1,10 +1,32 @@
 {
-  "maxxim": {
-    "sourceID": "ss-954000-1",
-    "displayName": "Maxxim Vacations"
+  "defaults": {
+    "country": "CA",
+    "taxRate": 0.15,
+    "paymentMethod": "cash"
   },
-  "dev": {
-    "sourceID": "s-1175266",
-    "displayName": "Dev Testing"
+  "roomTypes": {
+    "537927": { "name": "Lodge Suite", "maxGuests": 2, "rateID": "1677951" },
+    "537928": { "name": "Lodge Room", "maxGuests": 2, "rateID": "1677952" },
+    "542015": { "name": "Oceanview End", "maxGuests": 2, "rateID": "1697762" }
+  },
+  "users": {
+    "maxxim": {
+      "sourceID": "ss-954000-1",
+      "displayName": "Maxxim Vacations",
+      "phone": "",
+      "email": "maxxim@devinmarch.com",
+      "adjustmentModel": "percentage",
+      "adjustmentPercent": 0.15,
+      "otaRates": { "537927": 200.00, "537928": 100.00, "542015": 300.00 }
+    },
+    "dev": {
+      "sourceID": "s-1175266",
+      "displayName": "Dev Testing",
+      "phone": "",
+      "email": "dev@devinmarch.com",
+      "adjustmentModel": "percentage",
+      "adjustmentPercent": 0.15,
+      "otaRates": {}
+    }
   }
 }
