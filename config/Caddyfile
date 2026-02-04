@@ -22,7 +22,7 @@ res.devinmarch.com {
         maxxim $2a$14$wPsW3zHhxJ9tvLdx9he26OgImK/ZTmVYja.D9nETSqnSnXVNVZKm.
         dev $2a$14$P99393Q7JU.rV4OTaKyg8O9W9U7KwyGpd5xLLCgFlheROtcE/eOaG
     }
-    header @ota X-Remote-User {http.auth.user.id}
+    request_header @ota X-Remote-User {http.auth.user.id}
 
     reverse_proxy localhost:5000
 }
