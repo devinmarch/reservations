@@ -57,15 +57,15 @@ def index():
 
     if not matching_ids:
         return f"""<!DOCTYPE html>
-<html><head><title>{display_name} Reservations</title>
+<html><head><title>OTA Reservations</title>
 <style>
 table{{border-collapse:collapse;width:100%}}
 th,td{{border:1px solid #ddd;padding:8px;text-align:left}}
 th{{background:#333;color:white}}
 </style>
 </head><body>
-<h1>{display_name} Reservations</h1>
-<p>Found: 0 reservations</p>
+<h1>OTA Reservations</h1>
+<p>Source: {display_name} | Found: 0 reservations</p>
 <table>
 <tr><th>Reservation ID</th><th>3rd Party ID</th><th>Check In</th><th>Check Out</th><th>Status</th><th>Total</th></tr>
 </table>
@@ -99,7 +99,7 @@ th{{background:#333;color:white}}
         </tr>"""
 
     return f"""<!DOCTYPE html>
-<html><head><title>{display_name} Reservations</title>
+<html><head><title>OTA Reservations</title>
 <style>
 table{{border-collapse:collapse;width:100%}}
 th,td{{border:1px solid #ddd;padding:8px;text-align:left}}
@@ -107,8 +107,8 @@ th{{background:#333;color:white}}
 .room-row{{background:#f5f5f5;font-size:0.9em}}
 </style>
 </head><body>
-<h1>{display_name} Reservations</h1>
-<p>Found: {len(matching_ids)} reservations</p>
+<h1>OTA Reservations</h1>
+<p>Source: {display_name} | Found: {len(matching_ids)} reservations</p>
 <table>
 <tr><th>Reservation ID</th><th>3rd Party ID</th><th>Check In</th><th>Check Out</th><th>Status</th><th>Total</th></tr>
 {rows}
