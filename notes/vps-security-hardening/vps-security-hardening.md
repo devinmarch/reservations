@@ -32,7 +32,7 @@ ufw enable
 ```
 Host hetzner
     HostName 100.125.170.128    # Tailscale IP, not public IP
-    User root
+    User devin
 ```
 
 ### 2. Unattended Upgrades with Auto Reboot (DONE)
@@ -103,6 +103,43 @@ ingress:
 ```
 
 **Caddy change:** Updated Caddyfile to use `http://` prefix (e.g., `http://devinmarch.com`) since Cloudflare now handles TLS. See `cloudflare-tunnel-setup-guide.md` for details.
+
+### 5. Non-Root User with Sudo (DONE)
+
+Created user `devin` with sudo privileges. Root login is restricted to key-based auth only (`prohibit-password`) — root can still log in with an SSH key but never with a password.
+
+**Commands used:**
+```bash
+adduser devin
+usermod -aG sudo devin
+```
+
+**Copy SSH key to new user:**
+```bash
+mkdir -p /home/devin/.ssh
+cp /root/.ssh/authorized_keys /home/devin/.ssh/authorized_keys
+chown -R devin:devin /home/devin/.ssh
+chmod 700 /home/devin/.ssh
+chmod 600 /home/devin/.ssh/authorized_keys
+```
+
+**Disable root password login** (`/etc/ssh/sshd_config`):
+```
+PermitRootLogin prohibit-password
+```
+
+```bash
+sudo systemctl restart ssh
+```
+
+**Note:** On Ubuntu 24.04 the SSH service is named `ssh`, not `sshd`.
+
+**Updated local SSH config** (`~/.ssh/config`):
+```
+Host hetzner
+    HostName 100.125.170.128    # Tailscale IP
+    User devin
+```
 
 ### 4. Cloudflare Access on Jellyfin (DONE)
 
@@ -188,5 +225,4 @@ sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder
 
 ## Future Considerations
 
-- **Switch from root to non-root user** — Create a user with sudo, disable root login
 - **Cloudflare Access for Flask app** — If you want email auth on `res.devinmarch.com` too, same process as Jellyfin
