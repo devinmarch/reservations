@@ -5,16 +5,16 @@
     <style>
         body { font-family: sans-serif; margin: 20px; }
         table { border-collapse: collapse; width: 100%; table-layout: fixed; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; overflow: hidden; text-overflow: ellipsis; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: center; overflow: hidden; text-overflow: ellipsis; }
         th { background: #333; color: white; }
         th:nth-child(1) { width: 15%; }  /* Reservation ID */
         th:nth-child(2) { width: 18%; }  /* Guest Name */
-        th:nth-child(3) { width: 12%; }  /* 3rd Party ID */
+        th:nth-child(3) { width: 12%; }  /* OTA Ref. */
         th:nth-child(4) { width: 12%; }  /* Check In */
         th:nth-child(5) { width: 12%; }  /* Check Out */
         th:nth-child(6) { width: 12%; }  /* Status */
-        th:nth-child(7) { width: 10%; }  /* Total */
-        .details-row td { background: #f5f5f5; font-size: 0.9em; padding-left: 20px; }
+        th:nth-child(7) { width: 10%; }  /* Balance */
+        .details-row td { background: #f5f5f5; font-size: 0.9em; padding-left: 20px; text-align: left; }
         .reservation-row { cursor: pointer; }
         .reservation-row:hover { background: #f9f9f9; }
 
@@ -76,9 +76,9 @@
         <div class="tabs">
             <button class="tab active" data-status="">All</button>
             <button class="tab" data-status="confirmed">Confirmed</button>
-            <button class="tab" data-status="cancelled">Cancelled</button>
+            <button class="tab" data-status="canceled">Canceled</button>
         </div>
-        <input type="text" class="search" id="search" placeholder="Search ID, guest, or 3rd party ref...">
+        <input type="text" class="search" id="search" placeholder="Search ID, guest, or OTA ref...">
     </div>
 
     <table>
@@ -86,11 +86,11 @@
             <tr>
                 <th>Reservation ID</th>
                 <th>Guest Name</th>
-                <th>3rd Party ID</th>
+                <th>OTA Ref.</th>
                 <th>Check In</th>
                 <th>Check Out</th>
                 <th>Status</th>
-                <th>Total</th>
+                <th>Balance</th>
             </tr>
         </thead>
         {% for res in reservations %}
