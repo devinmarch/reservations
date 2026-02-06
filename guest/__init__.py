@@ -2,28 +2,48 @@ from flask import Blueprint, render_template, request, jsonify
 from db import RoomStay
 from chat_db import ChatMessage
 
-guest_bp = Blueprint('guest', __name__, template_folder='templates', url_prefix='/guest')
+guest_bp = Blueprint('guest', __name__, template_folder='templates', static_folder='static', url_prefix='/guest')
+
+
+def get_stays_or_404(reservation_id):
+    stays = list(RoomStay.select().where(RoomStay.reservation_id == reservation_id))
+    return stays if stays else None
 
 
 @guest_bp.route('/<reservation_id>')
 def reservation(reservation_id):
-    stays = list(RoomStay.select().where(RoomStay.reservation_id == reservation_id))
+    stays = get_stays_or_404(reservation_id)
     if not stays:
         return "Not found", 404
-
-    info = ""
-    for s in stays:
-        info += f"Room: {s.room_name}<br>Check-in: {s.room_check_in}<br>Check-out: {s.room_check_out}<br>Room Status: {s.room_status}<br>Res Status: {s.res_status}<br><br>"
-
-    return f"<html><body>{info}</body></html>"
+    return render_template('booking.html', reservation_id=reservation_id, stays=stays, page='booking')
 
 
 @guest_bp.route('/<reservation_id>/chat')
 def chat(reservation_id):
-    stays = list(RoomStay.select().where(RoomStay.reservation_id == reservation_id))
-    if not stays:
+    if not get_stays_or_404(reservation_id):
         return "Not found", 404
-    return render_template('chat.html', reservation_id=reservation_id)
+    return render_template('chat.html', reservation_id=reservation_id, page='messages')
+
+
+@guest_bp.route('/<reservation_id>/activities')
+def activities(reservation_id):
+    if not get_stays_or_404(reservation_id):
+        return "Not found", 404
+    return render_template('activities.html', reservation_id=reservation_id, page='activities')
+
+
+@guest_bp.route('/<reservation_id>/food')
+def food(reservation_id):
+    if not get_stays_or_404(reservation_id):
+        return "Not found", 404
+    return render_template('food.html', reservation_id=reservation_id, page='food')
+
+
+@guest_bp.route('/<reservation_id>/profile')
+def profile(reservation_id):
+    if not get_stays_or_404(reservation_id):
+        return "Not found", 404
+    return render_template('profile.html', reservation_id=reservation_id, page='profile')
 
 
 @guest_bp.route('/<reservation_id>/messages')
