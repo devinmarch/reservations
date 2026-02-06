@@ -93,10 +93,11 @@ def staff_chat():
     }}
 
     function loadMessages() {{
-        fetch(`/guest/${{currentRes}}/messages`)
+        return fetch(`/guest/${{currentRes}}/messages`)
             .then(r => r.json())
             .then(msgs => {{
                 const div = document.getElementById('messages');
+                const atBottom = div.scrollHeight - div.scrollTop - div.clientHeight < 50;
                 div.innerHTML = '';
                 msgs.forEach(m => {{
                     const el = document.createElement('div');
@@ -104,7 +105,7 @@ def staff_chat():
                     el.innerHTML = m.message + `<div class="time">${{m.created_at}}</div>`;
                     div.appendChild(el);
                 }});
-                div.scrollTop = div.scrollHeight;
+                if (atBottom) div.scrollTop = div.scrollHeight;
             }});
     }}
 
@@ -117,7 +118,7 @@ def staff_chat():
             body: JSON.stringify({{message: text}})
         }}).then(() => {{
             document.getElementById('msg').value = '';
-            loadMessages();
+            loadMessages().then(() => {{ document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight; }});
         }});
     }}
 </script>

@@ -29,9 +29,10 @@
         const msgInput = document.getElementById("msg");
 
         function loadMessages() {
-            fetch(`/guest/${resId}/messages`)
+            return fetch(`/guest/${resId}/messages`)
                 .then(r => r.json())
                 .then(msgs => {
+                    const atBottom = messagesDiv.scrollHeight - messagesDiv.scrollTop - messagesDiv.clientHeight < 50;
                     messagesDiv.innerHTML = "";
                     msgs.forEach(m => {
                         const div = document.createElement("div");
@@ -39,7 +40,7 @@
                         div.innerHTML = m.message + `<div class="time">${m.created_at}</div>`;
                         messagesDiv.appendChild(div);
                     });
-                    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+                    if (atBottom) messagesDiv.scrollTop = messagesDiv.scrollHeight;
                 });
         }
 
@@ -52,7 +53,7 @@
                 body: JSON.stringify({message: text})
             }).then(() => {
                 msgInput.value = "";
-                loadMessages();
+                loadMessages().then(() => { messagesDiv.scrollTop = messagesDiv.scrollHeight; });
             });
         }
 
