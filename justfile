@@ -9,3 +9,7 @@ open-caddy:
 # Restart the reservations service
 res-res:
 	sudo systemctl restart reservations
+
+# View reservations server logs
+logs-res:
+	sudo journalctl -u reservations -f
