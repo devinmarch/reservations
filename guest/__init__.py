@@ -39,6 +39,14 @@ def food(reservation_id):
     return render_template('food.html', reservation_id=reservation_id, page='food')
 
 
+@guest_bp.route('/<reservation_id>/food/reserve')
+def food_reserve(reservation_id):
+    if not get_stays_or_404(reservation_id):
+        return "Not found", 404
+    return render_template('food_reserve.html', reservation_id=reservation_id, page='food',
+                           title='Book a Table', back_url=f'/guest/{reservation_id}/food')
+
+
 @guest_bp.route('/<reservation_id>/profile')
 def profile(reservation_id):
     if not get_stays_or_404(reservation_id):

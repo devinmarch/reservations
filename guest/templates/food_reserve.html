@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Book a Table{% endblock %}
+{% block head %}
+<style>
+    .content { display: flex; flex-direction: column; }
+    .iframe-wrap { flex: 1; position: relative; }
+    .iframe-wrap iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+</style>
+{% endblock %}
+{% block content %}
+    <div class="iframe-wrap">
+        <iframe title="Eat Widget" src="https://eatapp.co/reserve/forager-at-cliffs-edge-retreat-1-celtic-rendezvous-place?source=iframe"></iframe>
+    </div>
+{% endblock %}

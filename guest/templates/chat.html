@@ -23,7 +23,6 @@
         const resId = "{{ reservation_id }}";
         const messagesDiv = document.getElementById("messages");
         const msgInput = document.getElementById("msg");
-
         function loadMessages() {
             return fetch(`/guest/${resId}/messages`)
                 .then(r => r.json())
@@ -33,7 +32,7 @@
                     msgs.forEach(m => {
                         const div = document.createElement("div");
                         div.className = "msg " + m.sender;
-                        div.innerHTML = m.message + `<div class="time">${m.created_at}</div>`;
+                        div.innerHTML = m.message + `<div class="time">${m.sender}</div>`;
                         messagesDiv.appendChild(div);
                     });
                     if (atBottom) messagesDiv.scrollTop = messagesDiv.scrollHeight;
@@ -54,6 +53,8 @@
         }
 
         msgInput.addEventListener("keydown", e => { if (e.key === "Enter") send(); });
+        msgInput.addEventListener("focus", () => document.querySelector("nav").style.display = "none");
+        msgInput.addEventListener("blur", () => document.querySelector("nav").style.display = "flex");
         loadMessages();
         setInterval(loadMessages, 3000);
     </script>

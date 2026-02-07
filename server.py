@@ -102,7 +102,7 @@ def staff_chat():
                 msgs.forEach(m => {{
                     const el = document.createElement('div');
                     el.className = 'msg ' + m.sender;
-                    el.innerHTML = m.message + `<div class="time">${{m.created_at}}</div>`;
+                    el.innerHTML = m.message + `<div class="time">${{m.sender}}</div>`;
                     div.appendChild(el);
                 }});
                 if (atBottom) div.scrollTop = div.scrollHeight;

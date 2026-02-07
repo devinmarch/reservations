@@ -7,6 +7,10 @@
     {% block head %}{% endblock %}
 </head>
 <body>
+    <header>
+        {% if back_url %}<a href="{{ back_url }}" class="back">← </a>{% endif %}
+        {{ title|default(page|capitalize) }}
+    </header>
     <div class="content">
         {% block content %}{% endblock %}
     </div>
