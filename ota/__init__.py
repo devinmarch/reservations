@@ -27,32 +27,38 @@ def index():
     if not source_id:
         return f"No sourceID configured for user: {username}", 403
 
-    # 2 year window
+    room_types = CONFIG.get("roomTypes", {})
+    return render_template('list.html', display_name=display_name, room_types=room_types)
+
+
+@ota_bp.route('/ota/api/reservations')
+def api_reservations():
+    username = get_username()
+    user_config = CONFIG.get("users", {}).get(username, {})
+    source_id = user_config.get("sourceID")
+
+    if not source_id:
+        return jsonify({"error": "No sourceID configured"}), 403
+
     check_in_from = (date.today() - timedelta(days=30)).isoformat()
     check_in_to = (date.today() + timedelta(days=730)).isoformat()
 
-    # Paginate through getReservations, filter by sourceID
     matching_ids = []
     page = 1
-
     while True:
         data = get_reservations(check_in_from, check_in_to, page)
         for res in data.get("data", []):
             if res.get("sourceID") == source_id:
                 matching_ids.append(res["reservationID"])
         if len(data.get("data", [])) < 100:
-            break  # Less than full page means we're done
+            break
         page += 1
 
-    room_types = CONFIG.get("roomTypes", {})
-
     if not matching_ids:
-        return render_template('list.html', display_name=display_name, reservations=[], room_types=room_types)
+        return jsonify([])
 
-    # Get full details for matching reservations
     details = get_reservations_with_details(matching_ids)
-
-    return render_template('list.html', display_name=display_name, reservations=details.get("data", []), room_types=room_types)
+    return jsonify(details.get("data", []))
 
 
 @ota_bp.route('/ota/availability', methods=['POST'])

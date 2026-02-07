@@ -67,7 +67,7 @@
     <div class="header">
         <div>
             <h1>OTA Reservations</h1>
-            <p>Partner: {{ display_name }} | Reservations: {{ reservations|length }}</p>
+            <p>Partner: {{ display_name }} | Reservations: <span id="count">...</span></p>
         </div>
         <button class="btn btn-primary" id="create-btn">Create Reservation</button>
     </div>
@@ -93,26 +93,9 @@
                 <th>Balance</th>
             </tr>
         </thead>
-        {% for res in reservations %}
-        <tbody data-status="{{ res.status }}" data-search="{{ res.reservationID }} {{ res.guestName }} {{ res.thirdPartyIdentifier or '' }}">
-            <tr class="reservation-row">
-                <td>{{ res.reservationID }}</td>
-                <td>{{ res.guestName }}</td>
-                <td>{{ res.thirdPartyIdentifier or '' }}</td>
-                <td>{{ res.reservationCheckIn }}</td>
-                <td>{{ res.reservationCheckOut }}</td>
-                <td>{{ res.status }}</td>
-                <td>${{ "%.2f"|format(res.total) }}</td>
-            </tr>
-            <tr class="details-row" hidden>
-                <td colspan="7">
-                    {% for room in res.rooms %}
-                    └─ {{ room.roomTypeName }}, {{ room.adults }} adults<br>
-                    {% endfor %}
-                </td>
-            </tr>
+        <tbody id="reservations">
+            <tr id="loading-row"><td colspan="7" style="padding:40px;color:#999">Loading reservations...</td></tr>
         </tbody>
-        {% endfor %}
     </table>
 
     <!-- Create Reservation Modal -->
@@ -179,23 +162,62 @@
     </script>
     <script src="{{ url_for('ota.static', filename='ota.js') }}"></script>
     <script>
-        // Current filter state
         let activeStatus = '';
         let searchQuery = '';
+        let reservations = [];
 
-        function filterTable() {
-            document.querySelectorAll('tbody[data-status]').forEach(tbody => {
-                const status = tbody.dataset.status;
-                const searchText = tbody.dataset.search.toLowerCase();
+        // Fetch reservations from API, then render
+        fetch('/ota/api/reservations' + window.location.search)
+            .then(r => r.json())
+            .then(data => {
+                reservations = data;
+                document.getElementById('count').textContent = reservations.length;
+                renderTable();
+            });
 
-                const matchesStatus = !activeStatus || status === activeStatus;
-                const matchesSearch = !searchQuery || searchText.includes(searchQuery);
+        function renderTable() {
+            const tbody = document.getElementById('reservations');
+            if (!reservations.length) {
+                tbody.innerHTML = '<tr><td colspan="7" style="padding:40px;color:#999">No reservations found</td></tr>';
+                return;
+            }
+            tbody.innerHTML = '';
+            reservations.forEach(res => {
+                const search = `${res.reservationID} ${res.guestName} ${res.thirdPartyIdentifier || ''}`;
+                const matchesStatus = !activeStatus || res.status === activeStatus;
+                const matchesSearch = !searchQuery || search.toLowerCase().includes(searchQuery);
+                if (!matchesStatus || !matchesSearch) return;
 
-                tbody.hidden = !(matchesStatus && matchesSearch);
+                const rooms = (res.rooms || []).map(r => `└─ ${r.roomTypeName}, ${r.adults} adults`).join('<br>');
+
+                tbody.insertAdjacentHTML('beforeend', `
+                    <tr class="reservation-row" onclick="toggleDetails(this)">
+                        <td>${res.reservationID}</td>
+                        <td>${res.guestName}</td>
+                        <td>${res.thirdPartyIdentifier || ''}</td>
+                        <td>${res.reservationCheckIn}</td>
+                        <td>${res.reservationCheckOut}</td>
+                        <td>${res.status}</td>
+                        <td>$${Number(res.total).toFixed(2)}</td>
+                    </tr>
+                    <tr class="details-row" hidden>
+                        <td colspan="7">${rooms}</td>
+                    </tr>
+                `);
             });
         }
 
-        // Tab filtering
+        function toggleDetails(row) {
+            const details = row.nextElementSibling;
+            const wasHidden = details.hidden;
+            document.querySelectorAll('.details-row').forEach(d => d.hidden = true);
+            details.hidden = !wasHidden;
+        }
+
+        function filterTable() {
+            renderTable();
+        }
+
         document.querySelectorAll('.tab').forEach(tab => {
             tab.addEventListener('click', () => {
                 activeStatus = tab.dataset.status;
@@ -205,24 +227,9 @@
             });
         });
 
-        // Search
         document.getElementById('search').addEventListener('input', function() {
             searchQuery = this.value.toLowerCase();
             filterTable();
-        });
-
-        // Click to expand details (accordion style - only one open at a time)
-        document.querySelectorAll('.reservation-row').forEach(row => {
-            row.addEventListener('click', () => {
-                const details = row.nextElementSibling;
-                const wasHidden = details.hidden;
-
-                // Collapse all
-                document.querySelectorAll('.details-row').forEach(d => d.hidden = true);
-
-                // Toggle clicked one (open if it was closed)
-                details.hidden = !wasHidden;
-            });
         });
     </script>
 </body>
