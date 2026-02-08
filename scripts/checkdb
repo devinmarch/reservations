@@ -1,0 +1,2 @@
+#!/bin/bash
+sqlite3 -header hotel-automation.db "SELECT id, room_id, device_id, api_key_env FROM device;"

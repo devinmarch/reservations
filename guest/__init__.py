@@ -1,6 +1,5 @@
 from flask import Blueprint, render_template, request, jsonify
-from db import RoomStay
-from chat_db import ChatMessage
+from db import RoomStay, ChatMessage
 
 guest_bp = Blueprint('guest', __name__, template_folder='templates', static_folder='static', url_prefix='/guest')
 

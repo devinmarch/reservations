@@ -1,10 +1,17 @@
-from peewee import SqliteDatabase, Model, TextField, FloatField
+from peewee import SqliteDatabase, Model, AutoField, TextField, FloatField, DateTimeField
 from playhouse.sqlite_ext import JSONField
+from datetime import datetime, timezone
 
-db = SqliteDatabase("reservations.db")
+db = SqliteDatabase("hotel-automation.db")
 
-class RoomStay(Model):
-    id = TextField(primary_key=True)  # reservation_id + room_id
+
+class BaseModel(Model):
+    class Meta:
+        database = db
+
+
+class RoomStay(BaseModel):
+    id = TextField(primary_key=True)
     reservation_id = TextField()
     room_id = TextField(null=True)
     room_name = TextField(null=True)
@@ -20,7 +27,10 @@ class RoomStay(Model):
     data = JSONField()
     seam_access_code_id = TextField(null=True)
 
-    class Meta:
-        database = db
 
-db.create_tables([RoomStay])
+class ChatMessage(BaseModel):
+    id = AutoField()
+    reservation_id = TextField()
+    sender = TextField()
+    message = TextField()
+    created_at = DateTimeField(default=lambda: datetime.now(timezone.utc))

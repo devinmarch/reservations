@@ -7,7 +7,7 @@ open-caddy:
 	sudo nano /etc/caddy/Caddyfile
 
 # Restart the reservations service
-res-res:
+restart-server:
 	sudo systemctl restart reservations
 
 # View reservations server logs
