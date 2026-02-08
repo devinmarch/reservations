@@ -4,7 +4,7 @@ from datetime import date, timedelta, datetime
 from zoneinfo import ZoneInfo
 from dotenv import load_dotenv
 from db import RoomStay
-from devices import Device
+from devices import Lock
 
 
 def run():
@@ -16,7 +16,7 @@ def run():
 
     LOCKS = {
         d.room_id: {"device": d.device_id, "key": os.environ.get(d.api_key_env)}
-        for d in Device.select()
+        for d in Lock.select()
     }
     DAYS_BACK = (date.today() - timedelta(days=7)).isoformat()
     DAYS_AHEAD = (date.today() + timedelta(days=7)).isoformat()

@@ -1,6 +1,6 @@
 from flask import Flask
 from db import db, RoomStay, ChatMessage
-from devices import Device
+from devices import Lock
 from reservations import reservations_bp
 from ota import ota_bp
 from guest import guest_bp
@@ -12,7 +12,7 @@ app.register_blueprint(ota_bp)
 app.register_blueprint(guest_bp)
 app.register_blueprint(staff_bp)
 
-db.create_tables([RoomStay, ChatMessage, Device])
+db.create_tables([RoomStay, ChatMessage, Lock])
 
 @app.route("/")
 def index():
