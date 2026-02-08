@@ -4,3 +4,4 @@ lock_config.json
 *.db
 __pycache__/
 venv/
+scripts-local/

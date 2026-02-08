@@ -11,5 +11,5 @@ restart-server:
 	sudo systemctl restart reservations
 
 # View reservations server logs
-logs-res:
+logs:
 	sudo journalctl -u reservations -f
