@@ -13,3 +13,7 @@ restart-server:
 # View reservations server logs
 logs:
 	sudo journalctl -u reservations -f
+
+# Activate virtual environment
+venv:
+	source venv/bin/activate
