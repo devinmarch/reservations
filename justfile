@@ -13,3 +13,7 @@ logs:
 # Activate virtual environment
 venv:
 	source venv/bin/activate
+
+# Copy Caddyfile and reload
+copy-caddy:
+    sudo cp /var/www/reservations/config/Caddyfile /etc/caddy/Caddyfile && sudo systemctl reload caddy
