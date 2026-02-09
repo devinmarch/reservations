@@ -128,6 +128,9 @@ def deleted():
 def details_changed():
     data = request.get_json()
 
+    if data.get("roomBlockReason", "").startswith("Code:"):
+        return jsonify({"skipped": True}), 200
+
     record = RoomBlockCode.get_or_none(RoomBlockCode.room_block_id == data["roomBlockID"])
     if not record:
         return jsonify({"skipped": True}), 200
