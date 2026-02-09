@@ -176,3 +176,7 @@ def run():
             print(f"Updated code dates for {stay.guest_name}")
         else:
             print(f"Failed to update code for {stay.guest_name}: {resp.text}")
+
+    # Sync common lock codes
+    from .common_sync import run as run_common_sync
+    run_common_sync()

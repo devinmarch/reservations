@@ -1,18 +1,22 @@
+import os
 from flask import Flask
 from db import db, RoomStay, ChatMessage
 from devices import Lock
+from reservations.common_sync import CommonCode
 from reservations import reservations_bp
 from ota import ota_bp
 from guest import guest_bp
 from staff import staff_bp
+from room_block import room_block_bp, RoomBlockCode
 
 app = Flask(__name__)
 app.register_blueprint(reservations_bp)
 app.register_blueprint(ota_bp)
 app.register_blueprint(guest_bp)
 app.register_blueprint(staff_bp)
+app.register_blueprint(room_block_bp)
 
-db.create_tables([RoomStay, ChatMessage, Lock])
+db.create_tables([RoomStay, ChatMessage, Lock, CommonCode, RoomBlockCode])
 
 @app.route("/")
 def index():
@@ -29,4 +33,4 @@ def index():
 </body></html>"""
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=os.environ.get("FLASK_DEBUG", False))

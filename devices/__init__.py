@@ -5,6 +5,7 @@ from db import BaseModel
 
 class Lock(BaseModel):
     id = IntegerField(primary_key=True, default=lambda: random.randint(1000000, 9999999))
-    room_id = TextField()
+    room_id = TextField(null=True)
     device_id = TextField()
     api_key_env = TextField()
+    category = TextField(null=True)
