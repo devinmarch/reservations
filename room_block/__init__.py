@@ -95,3 +95,37 @@ def deleted():
 
     record.delete_instance()
     return jsonify({"success": True}), 200
+
+
+@room_block_bp.route('/details-changed', methods=['POST'])
+def details_changed():
+    data = request.get_json()
+
+    record = RoomBlockCode.get_or_none(RoomBlockCode.room_block_id == data["roomBlockID"])
+    if not record:
+        return jsonify({"skipped": True}), 200
+
+    lock = Lock.get_or_none(Lock.id == record.lock_id)
+    if lock:
+        seam_key = os.environ.get(lock.api_key_env)
+        requests.post(
+            "https://connect.getseam.com/access_codes/delete",
+            headers={"Authorization": f"Bearer {seam_key}"},
+            json={"access_code_id": record.seam_code_id}
+        )
+
+    record.delete_instance()
+
+    api_key = os.environ.get("CLOUDBEDS_API_KEY")
+    property_id = os.environ.get("CLOUDBEDS_PROPERTY_ID")
+    requests.put(
+        "https://api.cloudbeds.com/api/v1.2/putRoomBlock",
+        headers={"Authorization": f"Bearer {api_key}"},
+        json={
+            "propertyID": property_id,
+            "roomBlockID": data["roomBlockID"],
+            "roomBlockReason": "Code: Deleted because room block was modified."
+        }
+    )
+
+    return jsonify({"success": True}), 200
