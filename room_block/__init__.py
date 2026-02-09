@@ -22,7 +22,7 @@ def reconcile():
         headers={"Authorization": f"Bearer {api_key}"},
         params={"propertyID": property_id}
     )
-    active_ids = {str(b["roomBlockID"]) for b in resp.json().get("data", [])}
+    active_ids = {str(b["roomBlockID"]) for b in resp.json().get("data", {}).get("roomBlocks", [])}
 
     for record in RoomBlockCode.select():
         if record.room_block_id in active_ids:
