@@ -13,6 +13,31 @@ load_dotenv()
 
 room_block_bp = Blueprint('room_block', __name__, url_prefix='/room-block')
 
+
+def reconcile():
+    api_key = os.environ.get("CLOUDBEDS_API_KEY")
+    property_id = os.environ.get("CLOUDBEDS_PROPERTY_ID")
+    resp = requests.get(
+        "https://api.cloudbeds.com/api/v1.2/getRoomBlocks",
+        headers={"Authorization": f"Bearer {api_key}"},
+        params={"propertyID": property_id}
+    )
+    active_ids = {str(b["roomBlockID"]) for b in resp.json().get("data", [])}
+
+    for record in RoomBlockCode.select():
+        if record.room_block_id in active_ids:
+            continue
+        lock = Lock.get_or_none(Lock.id == record.lock_id)
+        if lock:
+            seam_key = os.environ.get(lock.api_key_env)
+            requests.post(
+                "https://connect.getseam.com/access_codes/delete",
+                headers={"Authorization": f"Bearer {seam_key}"},
+                json={"access_code_id": record.seam_code_id}
+            )
+        record.delete_instance()
+        print(f"Reconciled: deleted orphaned room block {record.room_block_id}")
+
 TZ = ZoneInfo("America/St_Johns")
 
 
@@ -73,6 +98,7 @@ def created():
         }
     )
 
+    reconcile()
     return jsonify({"success": True, "code": pin}), 201
 
 
@@ -94,6 +120,7 @@ def deleted():
         )
 
     record.delete_instance()
+    reconcile()
     return jsonify({"success": True}), 200
 
 
@@ -128,4 +155,5 @@ def details_changed():
         }
     )
 
+    reconcile()
     return jsonify({"success": True}), 200
