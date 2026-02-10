@@ -24,5 +24,10 @@ http://res.devinmarch.com {
     }
     request_header @ota X-Remote-User {http.auth.user.id}
 
+    redir /availability-map /availability-map/ 301
+    handle_path /availability-map/* {
+        reverse_proxy localhost:5001
+    }
+
     reverse_proxy localhost:5000
 }
