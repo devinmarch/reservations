@@ -17,3 +17,7 @@ venv:
 # Copy Caddyfile and reload
 copy-caddy:
     sudo cp /var/www/reservations/config/Caddyfile /etc/caddy/Caddyfile && sudo systemctl reload caddy
+
+# Commit script
+commit *msg:
+    git add . && git commit -m "{{msg}}" && git push
