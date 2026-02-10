@@ -9,6 +9,10 @@ const availabilityResults = document.getElementById('availability-results');
 const roomsContainer = document.getElementById('rooms-container');
 const form = document.getElementById('create-form');
 
+// Date pickers
+flatpickr('#check-in', { dateFormat: 'Y-m-d' });
+flatpickr('#check-out', { dateFormat: 'Y-m-d' });
+
 // State
 let availability = {}; // { roomTypeId: { available, rate } }
 let addedRooms = [];    // [ { roomTypeId, guests } ]
