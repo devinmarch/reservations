@@ -20,7 +20,7 @@
       "otaRates": { "537927": 200.00, "537928": 100.00, "542015": 300.00 }
     },
     "dev": {
-      "sourceID": "s-1175266-1",
+      "sourceID": "s-1175266",
       "displayName": "Dev Testing",
       "phone": "",
       "email": "dev@devinmarch.com",

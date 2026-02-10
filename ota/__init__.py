@@ -159,7 +159,7 @@ def create_reservation():
     defaults = CONFIG.get("defaults", {})
     payload = {
         "propertyID": result.get("propertyID", ""),
-        "sourceID": user_config.get("sourceID"),
+        "sourceID": user_config.get("sourceID") + "-1",
         "thirdPartyIdentifier": ota_ref,
         "startDate": check_in,
         "endDate": check_out,
