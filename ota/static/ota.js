@@ -134,7 +134,7 @@ function renderAvailability() {
 
     availabilityResults.innerHTML = `
         <strong>Availability for a ${nights} night stay:</strong>
-        <table style="width:100%; margin-top:8px; border-collapse:collapse;">
+        <table style="width:100%; margin-top:8px; border-collapse:collapse; font-size:0.9em;">
             <tr style="text-align:left; border-bottom:1px solid #ccc;">
                 <th style="width:50%">Room</th><th style="width:25%">Available</th><th style="width:25%">OTA Rate</th>
             </tr>
