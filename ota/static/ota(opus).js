@@ -13,11 +13,16 @@ const form = document.getElementById('create-form');
 let availability = {}; // { roomTypeId: availableCount }
 let addedRooms = [];    // [ { roomTypeId, guests } ]
 
-// Helpers
-function setButtonState(btn, disabled, text) {
-    btn.disabled = disabled;
-    if (text !== undefined) btn.textContent = text;
-}
+// Modal open/close
+createBtn.addEventListener('click', () => {
+    modal.classList.add('active');
+    resetForm();
+});
+
+closeBtn.addEventListener('click', () => modal.classList.remove('active'));
+modal.addEventListener('click', (e) => {
+    if (e.target === modal) modal.classList.remove('active');
+});
 
 function resetForm() {
     form.reset();
@@ -30,38 +35,10 @@ function resetForm() {
     confirmBtn.disabled = true;
 }
 
-function getDates() {
-    return {
-        checkIn: document.getElementById('check-in').value,
-        checkOut: document.getElementById('check-out').value
-    };
-}
-
-function getFormValues() {
-    return {
-        checkIn: document.getElementById('check-in').value,
-        checkOut: document.getElementById('check-out').value,
-        firstName: document.getElementById('first-name').value,
-        lastName: document.getElementById('last-name').value,
-        otaRef: document.getElementById('ota-ref').value,
-        notes: document.getElementById('notes').value
-    };
-}
-
-// Modal open/close
-createBtn.addEventListener('click', () => {
-    modal.classList.add('active');
-    resetForm();
-});
-
-closeBtn.addEventListener('click', () => modal.classList.remove('active'));
-modal.addEventListener('click', (e) => {
-    if (e.target === modal) modal.classList.remove('active');
-});
-
 // Check availability
 checkAvailabilityBtn.addEventListener('click', async () => {
-    const { checkIn, checkOut } = getDates();
+    const checkIn = document.getElementById('check-in').value;
+    const checkOut = document.getElementById('check-out').value;
 
     if (!checkIn || !checkOut) {
         alert('Please select check-in and check-out dates');
@@ -73,7 +50,8 @@ checkAvailabilityBtn.addEventListener('click', async () => {
         return;
     }
 
-    setButtonState(checkAvailabilityBtn, true, 'Checking...');
+    checkAvailabilityBtn.disabled = true;
+    checkAvailabilityBtn.textContent = 'Checking...';
 
     try {
         const resp = await fetch('/ota/availability', {
@@ -99,7 +77,8 @@ checkAvailabilityBtn.addEventListener('click', async () => {
     } catch (err) {
         alert(err.message);
     } finally {
-        setButtonState(checkAvailabilityBtn, false, 'Check Availability');
+        checkAvailabilityBtn.disabled = false;
+        checkAvailabilityBtn.textContent = 'Check Availability';
     }
 });
 
@@ -172,16 +151,12 @@ function renderRoomEntry(index) {
 
     roomsContainer.appendChild(div);
 
-    const roomTypeSelect = div.querySelector('.room-type-select');
-    const guestSelect = div.querySelector('.guest-count-select');
-    const removeBtn = div.querySelector('.remove-room-btn');
-
     // Event listeners
-    roomTypeSelect.addEventListener('change', (e) => onRoomTypeChange(e, index));
-    guestSelect.addEventListener('change', (e) => {
+    div.querySelector('.room-type-select').addEventListener('change', (e) => onRoomTypeChange(e, index));
+    div.querySelector('.guest-count-select').addEventListener('change', (e) => {
         addedRooms[index].guests = parseInt(e.target.value);
     });
-    removeBtn.addEventListener('click', () => removeRoom(index));
+    div.querySelector('.remove-room-btn').addEventListener('click', () => removeRoom(index));
 }
 
 function onRoomTypeChange(e, index) {
@@ -204,6 +179,10 @@ function onRoomTypeChange(e, index) {
         guestSelect.disabled = true;
     }
 
+    guestSelect.addEventListener('change', (e) => {
+        addedRooms[index].guests = parseInt(e.target.value);
+    });
+
     // Re-render other room dropdowns to update availability counts
     updateAllRoomDropdowns();
     updateConfirmButton();
@@ -217,7 +196,7 @@ function getRemainingAvailability(roomTypeId) {
 
 function updateAllRoomDropdowns() {
     const selects = roomsContainer.querySelectorAll('.room-type-select');
-    selects.forEach((select) => {
+    selects.forEach((select, idx) => {
         const currentValue = select.value;
         let options = '<option value="">Select room...</option>';
 
@@ -252,7 +231,13 @@ function updateConfirmButton() {
 form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    const { checkIn, checkOut, firstName, lastName, otaRef, notes } = getFormValues();
+    const checkIn = document.getElementById('check-in').value;
+    const checkOut = document.getElementById('check-out').value;
+    const firstName = document.getElementById('first-name').value;
+    const lastName = document.getElementById('last-name').value;
+    const otaRef = document.getElementById('ota-ref').value;
+    const notes = document.getElementById('notes').value;
+
     const rooms = addedRooms.filter(r => r.roomTypeId);
 
     if (rooms.length === 0) {
@@ -260,7 +245,8 @@ form.addEventListener('submit', async (e) => {
         return;
     }
 
-    setButtonState(confirmBtn, true, 'Creating...');
+    confirmBtn.disabled = true;
+    confirmBtn.textContent = 'Creating...';
 
     try {
         const resp = await fetch('/ota/create', {
@@ -288,6 +274,7 @@ form.addEventListener('submit', async (e) => {
 
     } catch (err) {
         alert(err.message);
-        setButtonState(confirmBtn, false, 'Confirm Reservation');
+        confirmBtn.disabled = false;
+        confirmBtn.textContent = 'Confirm Reservation';
     }
 });
