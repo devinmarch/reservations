@@ -3,7 +3,7 @@ from datetime import date, timedelta
 from flask import Blueprint, request, render_template, jsonify
 from .api import (
     get_reservations, get_reservations_with_details, get_rate_plans,
-    post_reservation, post_adjustment, post_note
+    post_reservation, post_adjustment, post_note, put_note, get_notes
 )
 
 ota_bp = Blueprint('ota', __name__, template_folder='templates', static_folder='static', static_url_path='/ota/static')
@@ -211,3 +211,23 @@ def create_reservation():
             return jsonify({"error": "Reservation created but note failed"}), 500
 
     return jsonify({"success": True, "reservationID": reservation_id})
+
+
+@ota_bp.route('/ota/api/notes/<reservation_id>')
+def api_notes(reservation_id):
+    result = get_notes(reservation_id)
+    return jsonify(result.get("data", []))
+
+
+@ota_bp.route('/ota/api/notes/<reservation_id>', methods=['POST'])
+def api_post_note(reservation_id):
+    data = request.get_json()
+    result = post_note(reservation_id, data.get("note", ""))
+    return jsonify(result)
+
+
+@ota_bp.route('/ota/api/notes/<reservation_id>/<note_id>', methods=['PUT'])
+def api_put_note(reservation_id, note_id):
+    data = request.get_json()
+    result = put_note(reservation_id, note_id, data.get("note", ""))
+    return jsonify(result)

@@ -78,6 +78,31 @@ def post_adjustment(reservation_id, amount, notes):
     return resp.json()
 
 
+def get_notes(reservation_id):
+    """Fetch notes for a reservation."""
+    resp = requests.get(
+        f"{BASE_URL}/getReservationNotes",
+        headers={"Authorization": f"Bearer {API_KEY}"},
+        params={"propertyID": PROPERTY_ID, "reservationID": reservation_id}
+    )
+    return resp.json()
+
+
+def put_note(reservation_id, note_id, note):
+    """Update an existing reservation note."""
+    resp = requests.put(
+        f"{BASE_URL}/putReservationNote",
+        headers={"Authorization": f"Bearer {API_KEY}"},
+        data={
+            "propertyID": PROPERTY_ID,
+            "reservationID": reservation_id,
+            "reservationNoteID": note_id,
+            "reservationNote": note
+        }
+    )
+    return resp.json()
+
+
 def post_note(reservation_id, note):
     """Add note to reservation."""
     resp = requests.post(

@@ -15,6 +15,12 @@
         th:nth-child(6) { width: 12%; }  /* Status */
         th:nth-child(7) { width: 10%; }  /* Balance */
         .details-row td { background: #f5f5f5; font-size: 0.9em; padding-left: 20px; text-align: left; }
+        .details-inner { display: flex; gap: 30px; }
+        .details-rooms { flex: 1; }
+        .details-notes { flex: 1; border-left: 1px solid #ddd; padding-left: 20px; }
+        .details-notes .note { margin-bottom: 8px; }
+        .details-notes .note-date { color: #999; font-size: 0.85em; }
+        .details-notes textarea { width: 100%; padding: 6px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; resize: vertical; }
         .reservation-row { cursor: pointer; }
         .reservation-row:hover { background: #f9f9f9; }
 
@@ -26,6 +32,7 @@
         .btn-primary:hover { background: #0056b3; }
         .btn-secondary { background: #6c757d; color: white; }
         .btn-danger { background: #dc3545; color: white; padding: 5px 10px; }
+        .btn-sm { padding: 4px 12px; font-size: 0.85em; }
         .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
         /* Controls row */
@@ -200,10 +207,87 @@
                         <td>${res.status}</td>
                         <td>$${Number(res.total).toFixed(2)}</td>
                     </tr>
-                    <tr class="details-row" hidden>
-                        <td colspan="7">${rooms}</td>
+                    <tr class="details-row" hidden data-res-id="${res.reservationID}">
+                        <td colspan="7">
+                            <div class="details-inner">
+                                <div class="details-rooms">${rooms}</div>
+                                <div class="details-notes">Loading notes...</div>
+                            </div>
+                        </td>
                     </tr>
                 `);
+            });
+        }
+
+        function formatNoteDate(dateStr) {
+            const d = new Date(dateStr + 'Z');
+            const date = d.toLocaleDateString('en-US', { timeZone: 'America/St_Johns', month: 'short', day: 'numeric', year: 'numeric' });
+            const time = d.toLocaleTimeString('en-US', { timeZone: 'America/St_Johns', hour: 'numeric', minute: '2-digit' });
+            return `${date} - ${time}`;
+        }
+
+        function renderNote(div, note, resId) {
+            div.innerHTML = `
+                <div class="note">
+                    <div class="note-date">${formatNoteDate(note.dateModified)}</div>
+                    <div class="note-text">${note.reservationNote}</div>
+                    <button class="btn btn-primary btn-sm" style="margin-top:6px" onclick="event.stopPropagation(); editNote(this, '${resId}', '${note.reservationNoteID}')">Edit</button>
+                </div>`;
+        }
+
+        function renderNewNote(div, resId) {
+            div.innerHTML = `
+                <div class="note">
+                    <textarea rows="3" placeholder="Add a note..."></textarea>
+                    <button class="btn btn-primary btn-sm" style="margin-top:6px" onclick="event.stopPropagation(); saveNewNote(this, '${resId}')">Save</button>
+                </div>`;
+        }
+
+        function editNote(btn, resId, noteId) {
+            const noteDiv = btn.closest('.note');
+            const text = noteDiv.querySelector('.note-text').textContent;
+            const dateText = noteDiv.querySelector('.note-date').textContent;
+            noteDiv.innerHTML = `
+                <textarea rows="3">${text}</textarea>
+                <div style="display:flex;gap:6px;margin-top:6px">
+                    <button class="btn btn-primary btn-sm" onclick="event.stopPropagation(); saveEditedNote(this, '${resId}', '${noteId}')">Save</button>
+                    <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation(); cancelEdit(this, '${resId}', '${noteId}', '${dateText}')">Cancel</button>
+                </div>`;
+        }
+
+        function cancelEdit(btn, resId, noteId, dateText) {
+            const container = btn.closest('.details-notes');
+            const original = container.querySelector('textarea').defaultValue;
+            renderNote(container, { reservationNoteID: noteId, reservationNote: original, dateModified: '' }, resId);
+            container.querySelector('.note-date').textContent = dateText;
+        }
+
+        function saveEditedNote(btn, resId, noteId) {
+            const noteDiv = btn.closest('.note');
+            const text = noteDiv.querySelector('textarea').value;
+            btn.disabled = true;
+            fetch(`/ota/api/notes/${resId}/${noteId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ note: text })
+            }).then(r => r.json()).then(() => {
+                const now = new Date().toISOString().replace('T', ' ').slice(0, 19);
+                renderNote(noteDiv.closest('.details-notes'), { reservationNoteID: noteId, reservationNote: text, dateModified: now }, resId);
+            });
+        }
+
+        function saveNewNote(btn, resId) {
+            const noteDiv = btn.closest('.note');
+            const text = noteDiv.querySelector('textarea').value;
+            if (!text.trim()) return;
+            btn.disabled = true;
+            fetch(`/ota/api/notes/${resId}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ note: text })
+            }).then(r => r.json()).then(result => {
+                const now = new Date().toISOString().replace('T', ' ').slice(0, 19);
+                renderNote(noteDiv.closest('.details-notes'), { reservationNoteID: result.reservationNoteID, reservationNote: text, dateModified: now }, resId);
             });
         }
 
@@ -212,6 +296,19 @@
             const wasHidden = details.hidden;
             document.querySelectorAll('.details-row').forEach(d => d.hidden = true);
             details.hidden = !wasHidden;
+
+            if (wasHidden) {
+                const notesDiv = details.querySelector('.details-notes');
+                if (notesDiv.dataset.loaded) return;
+                const resId = details.dataset.resId;
+                fetch(`/ota/api/notes/${resId}`)
+                    .then(r => r.json())
+                    .then(notes => {
+                        notesDiv.dataset.loaded = '1';
+                        if (!notes.length) { renderNewNote(notesDiv, resId); return; }
+                        renderNote(notesDiv, notes[0], resId);
+                    });
+            }
         }
 
         function filterTable() {
