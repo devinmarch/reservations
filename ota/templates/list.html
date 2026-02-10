@@ -245,52 +245,47 @@
                 </div>`;
         }
 
+        function refreshNotes(resId) {
+            const details = document.querySelector(`.details-row[data-res-id="${resId}"]`);
+            const notesDiv = details.querySelector('.details-notes');
+            fetch(`/ota/api/notes/${resId}`)
+                .then(r => r.json())
+                .then(notes => {
+                    if (!notes.length) { renderNewNote(notesDiv, resId); return; }
+                    renderNote(notesDiv, notes[0], resId);
+                });
+        }
+
         function editNote(btn, resId, noteId) {
             const noteDiv = btn.closest('.note');
             const text = noteDiv.querySelector('.note-text').textContent;
-            const dateText = noteDiv.querySelector('.note-date').textContent;
             noteDiv.innerHTML = `
                 <textarea rows="3">${text}</textarea>
                 <div style="display:flex;gap:6px;margin-top:6px">
                     <button class="btn btn-primary btn-sm" onclick="event.stopPropagation(); saveEditedNote(this, '${resId}', '${noteId}')">Save</button>
-                    <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation(); cancelEdit(this, '${resId}', '${noteId}', '${dateText}')">Cancel</button>
+                    <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation(); refreshNotes('${resId}')">Cancel</button>
                 </div>`;
         }
 
-        function cancelEdit(btn, resId, noteId, dateText) {
-            const container = btn.closest('.details-notes');
-            const original = container.querySelector('textarea').defaultValue;
-            renderNote(container, { reservationNoteID: noteId, reservationNote: original, dateModified: '' }, resId);
-            container.querySelector('.note-date').textContent = dateText;
-        }
-
         function saveEditedNote(btn, resId, noteId) {
-            const noteDiv = btn.closest('.note');
-            const text = noteDiv.querySelector('textarea').value;
+            const text = btn.closest('.note').querySelector('textarea').value;
             btn.disabled = true;
             fetch(`/ota/api/notes/${resId}/${noteId}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ note: text })
-            }).then(r => r.json()).then(() => {
-                const now = new Date().toISOString().replace('T', ' ').slice(0, 19);
-                renderNote(noteDiv.closest('.details-notes'), { reservationNoteID: noteId, reservationNote: text, dateModified: now }, resId);
-            });
+            }).then(r => r.json()).then(() => refreshNotes(resId));
         }
 
         function saveNewNote(btn, resId) {
-            const noteDiv = btn.closest('.note');
-            const text = noteDiv.querySelector('textarea').value;
+            const text = btn.closest('.note').querySelector('textarea').value;
             if (!text.trim()) return;
             btn.disabled = true;
             fetch(`/ota/api/notes/${resId}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ note: text })
-            }).then(r => r.json()).then(result => {
-                const now = new Date().toISOString().replace('T', ' ').slice(0, 19);
-                renderNote(noteDiv.closest('.details-notes'), { reservationNoteID: result.reservationNoteID, reservationNote: text, dateModified: now }, resId);
-            });
+            }).then(r => r.json()).then(() => refreshNotes(resId));
         }
 
         function toggleDetails(row) {
