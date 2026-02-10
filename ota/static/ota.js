@@ -117,7 +117,7 @@ function renderAvailability() {
         const roomType = ROOM_TYPES[roomTypeId];
         if (roomType && info.available > 0) {
             const rate = `$${Number(info.rate).toFixed(2)}`;
-            html += `<tr><td style="white-space:nowrap">${roomType.name}</td><td>${info.available}</td><td style="white-space:nowrap">${rate}</td></tr>`;
+            html += `<tr><td>${roomType.name}</td><td>${info.available}</td><td>${rate}</td></tr>`;
             hasAvailability = true;
         }
     }
@@ -132,7 +132,7 @@ function renderAvailability() {
         <strong>Availability for a ${nights} night stay:</strong>
         <table style="width:100%; margin-top:8px; border-collapse:collapse;">
             <tr style="text-align:left; border-bottom:1px solid #ccc;">
-                <th style="width:99%">Room</th><th style="white-space:nowrap">Available</th><th style="white-space:nowrap">OTA Rate</th>
+                <th style="width:60%">Room</th><th style="width:20%">Available</th><th style="width:20%">OTA Rate</th>
             </tr>
             ${html}
         </table>`;
