@@ -91,13 +91,21 @@ def check_availability():
     # Fetch availability from CloudBeds
     result = get_rate_plans(check_in, check_out)
 
-    # Map results to roomTypeID -> roomsAvailable
+    # Map results to roomTypeID -> { available, rate }
+    ota_rates = user_config.get("otaRates", {})
     availability = {}
     for rate in result.get("data", []):
         rate_id = str(rate.get("rateID"))
         if rate_id in rate_to_room:
             room_id = rate_to_room[rate_id]
-            availability[room_id] = rate.get("roomsAvailable", 0)
+            if user_config.get("adjustmentModel") == "percentage":
+                display_rate = rate.get("roomRate", 0)
+            else:
+                display_rate = ota_rates.get(room_id, 0)
+            availability[room_id] = {
+                "available": rate.get("roomsAvailable", 0),
+                "rate": display_rate
+            }
 
     return jsonify({"availability": availability})
 

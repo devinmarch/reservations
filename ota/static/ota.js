@@ -10,7 +10,7 @@ const roomsContainer = document.getElementById('rooms-container');
 const form = document.getElementById('create-form');
 
 // State
-let availability = {}; // { roomTypeId: availableCount }
+let availability = {}; // { roomTypeId: { available, rate } }
 let addedRooms = [];    // [ { roomTypeId, guests } ]
 
 // Helpers
@@ -108,10 +108,11 @@ function renderAvailability() {
     let html = '<strong>Available:</strong><br>';
     let hasAvailability = false;
 
-    for (const [roomTypeId, count] of Object.entries(availability)) {
+    for (const [roomTypeId, info] of Object.entries(availability)) {
         const roomType = ROOM_TYPES[roomTypeId];
-        if (roomType && count > 0) {
-            html += `${roomType.name}: ${count} available<br>`;
+        if (roomType && info.available > 0) {
+            const rate = `$${Number(info.rate).toFixed(2)}`;
+            html += `${roomType.name}: ${info.available} available — Rate: ${rate}<br>`;
             hasAvailability = true;
         }
     }
@@ -210,7 +211,7 @@ function onRoomTypeChange(e, index) {
 }
 
 function getRemainingAvailability(roomTypeId) {
-    const total = availability[roomTypeId] || 0;
+    const total = (availability[roomTypeId] || {}).available || 0;
     const used = addedRooms.filter(r => r.roomTypeId === roomTypeId).length;
     return total - used;
 }
