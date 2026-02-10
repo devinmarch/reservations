@@ -99,7 +99,7 @@ def check_availability():
         if rate_id in rate_to_room:
             room_id = rate_to_room[rate_id]
             if user_config.get("adjustmentModel") == "percentage":
-                display_rate = rate.get("roomRate", 0)
+                display_rate = rate.get("roomRate", 0) * (1 - user_config.get("adjustmentPercent", 0))
             else:
                 display_rate = ota_rates.get(room_id, 0)
             availability[room_id] = {

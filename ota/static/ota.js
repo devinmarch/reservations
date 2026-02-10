@@ -105,24 +105,37 @@ checkAvailabilityBtn.addEventListener('click', async () => {
 
 function renderAvailability() {
     availabilityResults.style.display = 'block';
-    let html = '<strong>Available:</strong><br>';
+
+    const checkIn = document.getElementById('check-in').value;
+    const checkOut = document.getElementById('check-out').value;
+    const nights = Math.round((new Date(checkOut) - new Date(checkIn)) / 86400000);
+
+    let html = '';
     let hasAvailability = false;
 
     for (const [roomTypeId, info] of Object.entries(availability)) {
         const roomType = ROOM_TYPES[roomTypeId];
         if (roomType && info.available > 0) {
             const rate = `$${Number(info.rate).toFixed(2)}`;
-            html += `${roomType.name}: ${info.available} available — Rate: ${rate}<br>`;
+            html += `<tr><td>${roomType.name}</td><td>${info.available}</td><td>${rate}</td></tr>`;
             hasAvailability = true;
         }
     }
 
     if (!hasAvailability) {
-        html = '<strong>No rooms available for selected dates</strong>';
+        availabilityResults.innerHTML = '<strong>No rooms available for selected dates</strong>';
         addRoomBtn.disabled = true;
+        return;
     }
 
-    availabilityResults.innerHTML = html;
+    availabilityResults.innerHTML = `
+        <strong>Availability for a ${nights} night stay:</strong>
+        <table style="width:100%; margin-top:8px; border-collapse:collapse;">
+            <tr style="text-align:left; border-bottom:1px solid #ccc;">
+                <th>Room</th><th>Available</th><th>OTA Rate</th>
+            </tr>
+            ${html}
+        </table>`;
 }
 
 // Add room
