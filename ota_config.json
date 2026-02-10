@@ -7,7 +7,13 @@
   "roomTypes": {
     "537927": { "name": "Lodge Suite", "maxGuests": 2, "rateID": "1677951" },
     "537928": { "name": "Lodge Room", "maxGuests": 2, "rateID": "1677952" },
-    "542015": { "name": "Oceanview End", "maxGuests": 2, "rateID": "1697762" }
+    "542015": { "name": "Oceanview End", "maxGuests": 2, "rateID": "1697762" },
+    "537942": { "name": "Oceanview Interior", "maxGuests": 2, "rateID": "1677995" },
+    "502731": { "name": "Eagles Nest", "maxGuests": 2, "rateID": "1522624" },
+    "500482": { "name": "Cliff Hanger", "maxGuests": 2, "rateID": "1512240" },
+    "537988": { "name": "Seaside Cottage HT/S", "maxGuests": 4, "rateID": "1678217" },
+    "537990": { "name": "Seaside Cottage HT", "maxGuests": 4, "rateID": "1678219" }
+
   },
   "users": {
     "maxxim": {
@@ -17,7 +23,7 @@
       "email": "maxxim@devinmarch.com",
       "adjustmentModel": "percentage",
       "adjustmentPercent": 0.15,
-      "otaRates": { "537927": 200.00, "537928": 100.00, "542015": 300.00 }
+      "otaRates": { "537927": 0.00, "537928": 0.00, "542015": 0.00, "537942": 0.00, "502731": 0.00, "500482": 0.00, "537988": 0.00, "537990": 0.00 }
     },
     "dev": {
       "sourceID": "s-1175266",
