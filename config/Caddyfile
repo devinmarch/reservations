@@ -13,12 +13,12 @@ http://www.devinmarch.com {
 
 http://res.devinmarch.com {
     @notguest not path /guest/* /ota* /room-block/*
-    basicauth @notguest {
+    basicauth @notguest bcrypt admin {
         devin $2a$14$kZ.lxsjP5YCaqJcvKT8vSe3Vrvjk9Gt5apxxob9PDBk/Efqx8i9iK
     }
 
     @ota path /ota*
-    basicauth @ota {
+    basicauth @ota bcrypt ota {
         maxxim $2a$14$wPsW3zHhxJ9tvLdx9he26OgImK/ZTmVYja.D9nETSqnSnXVNVZKm.
         dev $2a$14$P99393Q7JU.rV4OTaKyg8O9W9U7KwyGpd5xLLCgFlheROtcE/eOaG
     }
