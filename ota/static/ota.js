@@ -162,10 +162,12 @@ function renderRoomEntry(index) {
     let roomOptions = '<option value="">Select room...</option>';
     for (const [roomTypeId, info] of Object.entries(ROOM_TYPES)) {
         let available = getRemainingAvailability(roomTypeId);
-        if (selectedRoomTypeId === roomTypeId) available += 1;
+        const isSelected = selectedRoomTypeId === roomTypeId;
+        if (isSelected) available += 1;
         if (available > 0) {
-            const selected = selectedRoomTypeId === roomTypeId ? 'selected' : '';
-            roomOptions += `<option value="${roomTypeId}" ${selected}>${info.name} (${available} left)</option>`;
+            const selected = isSelected ? 'selected' : '';
+            const shown = isSelected ? available - 1 : available;
+            roomOptions += `<option value="${roomTypeId}" ${selected}>${info.name} (${shown} left)</option>`;
         }
     }
 
@@ -241,12 +243,13 @@ function updateAllRoomDropdowns() {
 
         for (const [roomTypeId, info] of Object.entries(ROOM_TYPES)) {
             let available = getRemainingAvailability(roomTypeId);
-            // Add back 1 if this dropdown currently has this room selected
-            if (currentValue === roomTypeId) available += 1;
+            const isSelected = currentValue === roomTypeId;
+            if (isSelected) available += 1;
 
             if (available > 0) {
-                const selected = currentValue === roomTypeId ? 'selected' : '';
-                options += `<option value="${roomTypeId}" ${selected}>${info.name} (${available} left)</option>`;
+                const selected = isSelected ? 'selected' : '';
+                const shown = isSelected ? available - 1 : available;
+                options += `<option value="${roomTypeId}" ${selected}>${info.name} (${shown} left)</option>`;
             }
         }
 
