@@ -7,6 +7,10 @@ http://devinmarch.com {
     file_server
 }
 
+http://sandbox.devinmarch.com {
+    reverse_proxy localhost:5002
+}
+
 http://www.devinmarch.com {
     redir https://devinmarch.com{uri} permanent
 }
